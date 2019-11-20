@@ -22,8 +22,8 @@ if (empty($data->Name) && empty($data->Email) && empty($data->Password)) {
   echo json_encode(array("mensagem" => "Nome, Email e Senha são campos obrigatórios."));
   return;  
 }
-if (!empty($data->Id_Provider)) {
-  $user->Id_Provider = $data->Id_Provider;  
+if (!empty($data->Id_Provider)) {  
+  $user->Id_Provider = $data->Id_Provider;
 }
 
 

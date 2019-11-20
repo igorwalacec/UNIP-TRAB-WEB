@@ -23,23 +23,22 @@
   $user->Email = $data->Email;
   $user->Password = $data->Password;
 
-  $result = $user->login();
+  $user->login();
   
-  if($result)
+  if($user->Id_User != null)
   {
-    http_response_code(200);
-    echo json_encode(
-      array("result" => "Login válido.")
+    $user_result = array(
+      "id_user" =>  $user->Id_User,
+      "name" => $user->Name,
+      "id_provider" => $user->Id_Provider
     );
+    http_response_code(200);
+    echo json_encode($user_result);
     return;
   }
   else
   { 
     http_response_code(401);
-
-    echo json_encode(
-        array("message" => "Login Inválido.")
-    );
     return;
   }
 ?>
