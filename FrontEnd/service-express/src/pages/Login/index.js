@@ -5,8 +5,9 @@ import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import Snackbar from "@material-ui/core/Snackbar";
+import { Redirect } from "react-router-dom";
 
-import axios from "axios";
 import api from "../../services/api";
 
 const useStyles = makeStyles(theme => ({
@@ -30,71 +31,120 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Login() {
+  const [state, setState] = React.useState({
+    open: false,
+    vertical: "top",
+    horizontal: "right",
+    message: "",
+    redirectUser: false,
+    redirectProvider: false
+  });
+
+  const {
+    vertical,
+    horizontal,
+    open,
+    message,
+    redirectUser,
+    redirectProvider
+  } = state;
+
+  const handleClose = () => {
+    setState({ ...state, open: false });
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
-    var data = JSON.stringify({
-      Email: "fafafafasf",
-      Password: "Aditya"
-    });
-    let teste = await axios.post(
-      "http://localhost:3030/serviceexpress/user/login.php",
-      data,
-      {
-        headers: {
-          "Content-Typedsaf": "application/json"
-        }
-      }
+    const Email = encodeURIComponent(document.querySelector("#Email").value);
+    const Password = encodeURIComponent(
+      document.querySelector("#Password").value
     );
-    console.log(teste);
+    const url = `/user/login.php?Email=${Email}&Password=${Password}`;
+    await api
+      .post(url)
+      .then(response => {
+        if (response.data.id_provider != null) {
+          setState({ redirectProvider: true });
+        } else {
+          setState({ redirectUser: true });
+        }
+        localStorage.setItem("informations", JSON.stringify(response.data));
+      })
+      .catch(error => {
+        setState({
+          open: true,
+          ...{
+            vertical: "top",
+            horizontal: "right",
+            message: error.response.data.message
+          }
+        });
+      });
   }
 
   const classes = useStyles();
 
-  return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Typography component="h1" variant="h5">
-          Logar
-        </Typography>
-        <form
-          className={classes.form}
-          validate="true"
-          onSubmit={e => handleSubmit(e)}
-        >
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="Email"
-            label="Endereço de Email"
-            name="Email"
-            autoComplete="email"
-            autoFocus
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Senha"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
+  if (redirectUser) {
+    return <Redirect to="/Home" />;
+  } else if (redirectProvider) {
+    return <Redirect to="/Services" />;
+  } else {
+    return (
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Typography component="h1" variant="h5">
             Logar
-          </Button>
-        </form>
-      </div>
-    </Container>
-  );
+          </Typography>
+          <form
+            className={classes.form}
+            validate="true"
+            onSubmit={e => handleSubmit(e)}
+          >
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="Email"
+              label="Endereço de Email"
+              name="Email"
+              autoComplete="email"
+              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Senha"
+              type="password"
+              id="Password"
+              autoComplete="current-password"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Logar
+            </Button>
+          </form>
+        </div>
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          key={`${vertical},${horizontal}`}
+          open={open}
+          onClose={handleClose}
+          ContentProps={{
+            "aria-describedby": "message-id"
+          }}
+          message={<span id="message-id">{message}</span>}
+        />
+      </Container>
+    );
+  }
 }
