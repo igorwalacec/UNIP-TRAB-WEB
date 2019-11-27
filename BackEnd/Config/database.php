@@ -1,10 +1,10 @@
 <?php
 class Database{
      
-    private $host = "localhost";
-    private $db_name = "servicebd";
-    private $username = "root";
-    private $password = "123456";
+    private $host = "remotemysql.com";
+    private $db_name = "CNabqQ94RO";
+    private $username = "CNabqQ94RO";
+    private $password = "juPGiWfasfabggR";
     public $conn;
      
     public function getConnection(){        
